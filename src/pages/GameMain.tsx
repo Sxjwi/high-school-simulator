@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import useGameStore, { actions, shopItems, courses, teachers, achievements } from '../store/gameStore';
@@ -8,12 +8,7 @@ import ExamResultModal from '../components/ExamResultModal';
 import EventModal from '../components/EventModal';
 import CraftingModal from '../components/CraftingModal';
 
-let Classroom3D: any = null;
-try {
-  Classroom3D = require('../components/Classroom3D').default;
-} catch (e) {
-  console.error('Failed to load 3D component:', e);
-}
+const Classroom3D = lazy(() => import('../components/Classroom3D'));
 
 const GameMain: React.FC = () => {
   const navigate = useNavigate();
@@ -129,17 +124,24 @@ const GameMain: React.FC = () => {
         </div>
 
         {/* 3D教室场景 */}
-        {Classroom3D && (
-          <div className="bg-white rounded-xl shadow-md p-4 mb-6 h-[500px]">
-            <h3 className="text-lg font-semibold text-blue-800 mb-4 text-center">🏫 3D教室场景</h3>
+        <div className="bg-white rounded-xl shadow-md p-4 mb-6 h-[500px]">
+          <h3 className="text-lg font-semibold text-blue-800 mb-4 text-center">🏫 3D教室场景</h3>
+          <Suspense fallback={
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg">
+              <div className="text-center">
+                <div className="text-4xl mb-4 animate-bounce">🏫</div>
+                <div className="text-xl text-blue-800">加载教室场景中...</div>
+              </div>
+            </div>
+          }>
             <Classroom3D 
               season={player.season} 
               day={player.day} 
               grades={player.attributes.grades}
               isWeekend={player.day % 7 === 0 || player.day % 7 === 6}
             />
-          </div>
-        )}
+          </Suspense>
+        </div>
         
         {/* 主要内容区 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
