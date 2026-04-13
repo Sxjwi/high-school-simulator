@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import useGameStore, { actions, shopItems, courses, teachers, achievements } from '../store/gameStore';
@@ -7,7 +7,13 @@ import WeekendActivityModal from '../components/WeekendActivityModal';
 import ExamResultModal from '../components/ExamResultModal';
 import EventModal from '../components/EventModal';
 import CraftingModal from '../components/CraftingModal';
-import Classroom3D from '../components/Classroom3D';
+
+let Classroom3D: any = null;
+try {
+  Classroom3D = require('../components/Classroom3D').default;
+} catch (e) {
+  console.error('Failed to load 3D component:', e);
+}
 
 const GameMain: React.FC = () => {
   const navigate = useNavigate();
@@ -123,15 +129,17 @@ const GameMain: React.FC = () => {
         </div>
 
         {/* 3D教室场景 */}
-        <div className="bg-white rounded-xl shadow-md p-4 mb-6 h-[500px]">
-          <h3 className="text-lg font-semibold text-blue-800 mb-4 text-center">🏫 3D教室场景</h3>
-          <Classroom3D 
-            season={player.season} 
-            day={player.day} 
-            grades={player.attributes.grades}
-            isWeekend={player.day % 7 === 0 || player.day % 7 === 6}
-          />
-        </div>
+        {Classroom3D && (
+          <div className="bg-white rounded-xl shadow-md p-4 mb-6 h-[500px]">
+            <h3 className="text-lg font-semibold text-blue-800 mb-4 text-center">🏫 3D教室场景</h3>
+            <Classroom3D 
+              season={player.season} 
+              day={player.day} 
+              grades={player.attributes.grades}
+              isWeekend={player.day % 7 === 0 || player.day % 7 === 6}
+            />
+          </div>
+        )}
         
         {/* 主要内容区 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
