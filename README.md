@@ -1,57 +1,171 @@
-# React + TypeScript + Vite
+# 人生模拟器·高中副本
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个模拟高中生活的Web游戏，使用 React + TypeScript + Vite 开发。
 
-Currently, two official plugins are available:
+## 游戏特色
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🎮 核心玩法
+- **游戏时长选择**：30天、60天、90天、120天
+- **难度选择**：简单、普通、困难
+- **天赋选择**：4种天赋类型
 
-## Expanding the ESLint configuration
+### 📊 六维属性
+- 成绩 - 影响考试和学业结局
+- 心态 - 影响所有属性的成长
+- 体力 - 支持你的日常行动
+- 人缘 - 影响社交和老师好感
+- 才艺 - 影响艺术和制作能力
+- 运气 - 影响考试和随机事件
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 📚 课程系统
+- 数学提高班
+- 艺术选修课
+- 体育课程
+- 社交技能课
+- 哲学思考课
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 👨‍🏫 老师好感度系统
+- 5位老师：王老师（数学）、李老师（语文）、张老师（英语）、刘老师（体育）、陈老师（艺术）
+- 好感度分为4个等级：陌生、普通、友善、敬爱
+
+### 🎉 周末特别活动
+- 家庭聚餐
+- 图书馆学习
+- 朋友聚会
+- 志愿服务
+- 家庭旅行
+
+### 🎨 物品制作系统
+- 4种制作材料：纸张、草药、布料、颜料
+- 5种制作配方，包括高级学习笔记
+- 才艺等级限制，高等级配方需要更高的才艺值
+
+### 🌸 季节性事件系统
+- 4个季节：春季、夏季、秋季、冬季
+- 每个季节有专属的随机事件
+- 季节会根据游戏天数自动变化
+
+### 🏆 成就系统
+- 24个成就，涵盖各个方面
+- 成就展示页面
+- 总体进度统计
+
+### 🎭 结局系统
+- 16个结局，根据你的属性和表现触发
+- 涵盖学业、社交、艺术、体育等多个领域
+
+## 技术栈
+
+- **前端框架**：React 18
+- **开发语言**：TypeScript
+- **构建工具**：Vite
+- **样式框架**：Tailwind CSS
+- **状态管理**：Zustand
+- **数据可视化**：Recharts
+- **数据持久化**：LocalStorage
+
+## 快速开始
+
+### 安装依赖
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 启动开发服务器
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm run dev
 ```
+
+### 构建生产版本
+
+```bash
+npm run build
+```
+
+### 预览生产构建
+
+```bash
+npm run preview
+```
+
+## 游戏玩法
+
+### 1. 创建角色
+- 输入游戏昵称
+- 选择天赋类型
+- 选择游戏难度
+- 选择游戏时长
+
+### 2. 选择课程
+- 选择最多2门课程
+- 课程会每天提供属性加成
+- 游戏中可随时更换课程
+
+### 3. 日常行动
+- 使用行动点完成各种行动
+- 管理六维属性的平衡发展
+- 完成任务获得奖励
+
+### 4. 应对随机事件
+- 每3天触发一次随机事件
+- 事件会根据当前季节进行筛选
+- 做出选择，影响属性发展
+
+### 5. 周末活动
+- 每6天触发一次周末活动
+- 有多种活动选择
+
+### 6. 制作物品
+- 在商店购买制作材料
+- 使用配方制作各种物品
+- 高等级配方需要更高的才艺值
+
+### 7. 查看成就
+- 在游戏主页面点击成就按钮
+- 查看已获得和未获得的成就
+- 追踪总体进度
+
+### 8. 完成游戏
+- 到达选定的游戏时长后游戏结束
+- 根据你的属性和表现触发相应的结局
+
+## 项目结构
+
+```
+/workspace
+├── src/
+│   ├── components/        # 组件目录
+│   │   ├── CourseSelectionModal.tsx
+│   │   ├── CraftingModal.tsx
+│   │   ├── EventModal.tsx
+│   │   ├── ExamResultModal.tsx
+│   │   ├── TutorialModal.tsx
+│   │   └── WeekendActivityModal.tsx
+│   ├── pages/            # 页面目录
+│   │   ├── AchievementsPage.tsx
+│   │   ├── CharacterCreation.tsx
+│   │   ├── EndingPage.tsx
+│   │   ├── GameMain.tsx
+│   │   └── Home.tsx
+│   ├── store/            # 状态管理
+│   │   └── gameStore.ts
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+├── public/
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── tailwind.config.js
+└── README.md
+```
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 许可证
+
+MIT License

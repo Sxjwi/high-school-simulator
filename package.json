@@ -1,8 +1,9 @@
 {
-  "name": "workspace",
+  "name": "high-school-simulator",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "人生模拟器·高中副本 - 一款决策驱动型养成类Web游戏",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
