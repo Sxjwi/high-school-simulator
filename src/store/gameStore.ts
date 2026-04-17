@@ -44,8 +44,24 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 export type GameDuration = 30 | 60 | 90 | 120;
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
+// 关系系统
 // 老师好感度系统
 export interface TeacherRelationship {
+  [key: string]: number;
+}
+
+// 同学关系系统
+export interface ClassmateRelationship {
+  [key: string]: number;
+}
+
+// 家人关系系统
+export interface FamilyRelationship {
+  [key: string]: number;
+}
+
+// 社团关系系统
+export interface ClubRelationship {
   [key: string]: number;
 }
 
@@ -72,6 +88,9 @@ export interface Player {
   items: Item[]; // 物品列表
   money: number; // 金钱
   teacherRelationship: TeacherRelationship; // 老师好感度
+  classmateRelationship: ClassmateRelationship; // 同学关系
+  familyRelationship: FamilyRelationship; // 家人关系
+  clubRelationship: ClubRelationship; // 社团关系
   selectedCourses: string[]; // 已选择的课程
 }
 
@@ -86,6 +105,12 @@ export interface Event {
 export interface EventOption {
   text: string;
   attributeChanges: Partial<Attributes>;
+  relationshipChanges?: {
+    teachers?: { [key: string]: number };
+    classmates?: { [key: string]: number };
+    family?: { [key: string]: number };
+    clubs?: { [key: string]: number };
+  };
 }
 
 export interface Ending {
@@ -99,6 +124,12 @@ export interface Ending {
     minSocial?: number;
     minTalent?: number;
     minLuck?: number;
+    maxGrades?: number;
+    maxMindset?: number;
+    maxEnergy?: number;
+    maxSocial?: number;
+    maxTalent?: number;
+    maxLuck?: number;
   };
 }
 
@@ -138,6 +169,36 @@ export const talents = [
     name: '幸运儿',
     description: '运气属性成长倍率+20%',
     multipliers: { grades: 1.0, mindset: 1.0, energy: 1.0, social: 1.0, talent: 1.0, luck: 1.2 }
+  },
+  {
+    id: 'athlete',
+    name: '体育健将',
+    description: '体力属性成长倍率+20%，运动效果提升',
+    multipliers: { grades: 0.9, mindset: 1.1, energy: 1.2, social: 1.0, talent: 0.9, luck: 1.0 }
+  },
+  {
+    id: 'business',
+    name: '商业天才',
+    description: '兼职收入+30%，运气+10%',
+    multipliers: { grades: 1.0, mindset: 1.0, energy: 1.0, social: 1.1, talent: 0.9, luck: 1.1 }
+  },
+  {
+    id: 'romantic',
+    name: '恋爱高手',
+    description: '人缘+15%，心情更容易保持',
+    multipliers: { grades: 0.9, mindset: 1.15, energy: 1.0, social: 1.15, talent: 1.0, luck: 1.0 }
+  },
+  {
+    id: 'nightowl',
+    name: '夜猫子',
+    description: '心态+15%，但体力-5%',
+    multipliers: { grades: 1.0, mindset: 1.15, energy: 0.95, social: 1.0, talent: 1.0, luck: 1.0 }
+  },
+  {
+    id: 'balanced',
+    name: '均衡发展',
+    description: '所有属性成长+5%，无短板',
+    multipliers: { grades: 1.05, mindset: 1.05, energy: 1.05, social: 1.05, talent: 1.05, luck: 1.05 }
   }
 ];
 
@@ -757,11 +818,266 @@ export const events = [
       }
     ],
     season: 'winter'
+  },
+  // 新增通用事件
+  {
+    id: 'event29',
+    title: '校园广播站',
+    description: '校园广播站正在招聘新成员，你有兴趣加入吗？',
+    options: [
+      {
+        text: '积极报名参加',
+        attributeChanges: { grades: -1, mindset: 2, energy: -1, social: 3, talent: 2, luck: 1 }
+      },
+      {
+        text: '先了解一下再说',
+        attributeChanges: { grades: 0, mindset: 1, energy: 0, social: 1, talent: 1, luck: 0 }
+      },
+      {
+        text: '没兴趣，专注学习',
+        attributeChanges: { grades: 2, mindset: -1, energy: 1, social: -1, talent: 0, luck: 0 }
+      }
+    ],
+    season: 'all'
+  },
+  {
+    id: 'event30',
+    title: '音乐演出',
+    description: '学校要举办音乐节，你想参与吗？',
+    options: [
+      {
+        text: '报名表演节目',
+        attributeChanges: { grades: -2, mindset: 2, energy: -3, social: 2, talent: 4, luck: 1 }
+      },
+      {
+        text: '作为观众欣赏',
+        attributeChanges: { grades: 0, mindset: 3, energy: 0, social: 2, talent: 1, luck: 1 }
+      },
+      {
+        text: '留在教室学习',
+        attributeChanges: { grades: 3, mindset: -1, energy: 1, social: -1, talent: 0, luck: 0 }
+      }
+    ],
+    season: 'all'
+  },
+  {
+    id: 'event31',
+    title: '校园义卖',
+    description: '学校组织慈善义卖活动，你会如何参与？',
+    options: [
+      {
+        text: '捐赠物品并积极参与',
+        attributeChanges: { grades: -1, mindset: 3, energy: -2, social: 4, talent: 1, luck: 2 }
+      },
+      {
+        text: '去逛逛买些东西',
+        attributeChanges: { grades: 0, mindset: 2, energy: -1, social: 2, talent: 0, luck: 1 }
+      },
+      {
+        text: '不参与，继续学习',
+        attributeChanges: { grades: 2, mindset: -1, energy: 1, social: -1, talent: 0, luck: -1 }
+      }
+    ],
+    season: 'all'
+  },
+  // 新增春季事件
+  {
+    id: 'event32',
+    title: '植树活动',
+    description: '春天到了，学校组织植树活动，你要参加吗？',
+    options: [
+      {
+        text: '积极参与植树',
+        attributeChanges: { grades: -1, mindset: 3, energy: -2, social: 3, talent: 1, luck: 2 }
+      },
+      {
+        text: '帮忙浇水施肥',
+        attributeChanges: { grades: 0, mindset: 2, energy: -1, social: 2, talent: 0, luck: 1 }
+      },
+      {
+        text: '在旁边观看',
+        attributeChanges: { grades: 1, mindset: 1, energy: 0, social: 0, talent: 0, luck: 0 }
+      }
+    ],
+    season: 'spring'
+  },
+  // 新增夏季事件
+  {
+    id: 'event33',
+    title: '泳池派对',
+    description: '班级组织泳池派对，你会去参加吗？',
+    options: [
+      {
+        text: '尽情玩耍，展现泳技',
+        attributeChanges: { grades: -2, mindset: 4, energy: 2, social: 4, talent: 1, luck: 2 }
+      },
+      {
+        text: '在岸边聊天，享受阳光',
+        attributeChanges: { grades: -1, mindset: 3, energy: 1, social: 3, talent: 0, luck: 1 }
+      },
+      {
+        text: '不去，在家学习',
+        attributeChanges: { grades: 3, mindset: -1, energy: 2, social: -2, talent: 0, luck: -1 }
+      }
+    ],
+    season: 'summer'
+  },
+  // 新增秋季事件
+  {
+    id: 'event34',
+    title: '中秋赏月',
+    description: '中秋节到了，班级组织赏月活动，你要参加吗？',
+    options: [
+      {
+        text: '参加赏月晚会',
+        attributeChanges: { grades: -1, mindset: 4, energy: 1, social: 3, talent: 1, luck: 2 }
+      },
+      {
+        text: '和家人一起赏月',
+        attributeChanges: { grades: 0, mindset: 3, energy: 2, social: 2, talent: 0, luck: 1 }
+      },
+      {
+        text: '专心学习',
+        attributeChanges: { grades: 2, mindset: -1, energy: 1, social: -1, talent: 0, luck: 0 }
+      }
+    ],
+    season: 'autumn'
+  },
+  // 新增冬季事件
+  {
+    id: 'event35',
+    title: '圣诞晚会',
+    description: '学校举办圣诞晚会，你会如何度过？',
+    options: [
+      {
+        text: '精心准备节目',
+        attributeChanges: { grades: -2, mindset: 4, energy: -2, social: 4, talent: 3, luck: 2 },
+        relationshipChanges: {
+          classmates: { classmate1: 10, classmate2: 8, classmate3: 5 },
+          clubs: { club2: 15 }
+        }
+      },
+      {
+        text: '参加晚会，享受氛围',
+        attributeChanges: { grades: -1, mindset: 3, energy: 0, social: 3, talent: 1, luck: 1 },
+        relationshipChanges: {
+          classmates: { classmate1: 5, classmate2: 5, classmate3: 3 },
+          teachers: { teacher5: 5 }
+        }
+      },
+      {
+        text: '在家复习备考',
+        attributeChanges: { grades: 3, mindset: -1, energy: 1, social: -2, talent: 0, luck: -1 },
+        relationshipChanges: {
+          family: { family1: 5, family2: 5 },
+          teachers: { teacher1: 8, teacher2: 8 }
+        }
+      }
+    ],
+    season: 'winter'
+  },
+  // 新增关系相关事件
+  {
+    id: 'event36',
+    title: '同学聚会',
+    description: '同学们组织了一次聚会，邀请你参加。',
+    options: [
+      {
+        text: '积极参加，与大家一起玩',
+        attributeChanges: { grades: -1, mindset: 3, energy: -2, social: 4, luck: 2 },
+        relationshipChanges: {
+          classmates: { classmate1: 15, classmate2: 10, classmate3: 8, classmate4: 12, classmate5: 8 }
+        }
+      },
+      {
+        text: '参加但早点离开',
+        attributeChanges: { grades: 1, mindset: 2, energy: -1, social: 2, luck: 1 },
+        relationshipChanges: {
+          classmates: { classmate1: 5, classmate2: 5, classmate3: 3, classmate4: 5, classmate5: 3 }
+        }
+      },
+      {
+        text: '婉拒邀请，在家学习',
+        attributeChanges: { grades: 3, mindset: -1, energy: 1, social: -3, luck: -1 },
+        relationshipChanges: {
+          classmates: { classmate1: -5, classmate2: -3, classmate3: -2, classmate4: -4, classmate5: -3 }
+        }
+      }
+    ],
+    season: 'all'
+  },
+  {
+    id: 'event37',
+    title: '家庭聚餐',
+    description: '家人准备了一顿丰盛的晚餐，希望你能参加。',
+    options: [
+      {
+        text: '准时参加，与家人共度美好时光',
+        attributeChanges: { grades: -1, mindset: 4, energy: 1, social: 2, luck: 3 },
+        relationshipChanges: {
+          family: { family1: 15, family2: 15, family3: 10, family4: 10 }
+        }
+      },
+      {
+        text: '参加但带上作业',
+        attributeChanges: { grades: 2, mindset: 2, energy: -1, social: 1, luck: 1 },
+        relationshipChanges: {
+          family: { family1: 5, family2: 5, family3: 3, family4: 3 }
+        }
+      },
+      {
+        text: '因为学习忙而不参加',
+        attributeChanges: { grades: 3, mindset: -2, energy: 2, social: -2, luck: -2 },
+        relationshipChanges: {
+          family: { family1: -8, family2: -10, family3: -5, family4: -5 }
+        }
+      }
+    ],
+    season: 'all'
+  },
+  {
+    id: 'event38',
+    title: '社团招新',
+    description: '学校社团开始招新，你对哪个社团感兴趣？',
+    options: [
+      {
+        text: '加入学习社',
+        attributeChanges: { grades: 3, mindset: 2, energy: -1, social: 2, luck: 1 },
+        relationshipChanges: {
+          clubs: { club1: 20 },
+          classmates: { classmate3: 10 }
+        }
+      },
+      {
+        text: '加入艺术社',
+        attributeChanges: { grades: -1, mindset: 3, energy: -1, social: 2, talent: 3, luck: 1 },
+        relationshipChanges: {
+          clubs: { club2: 20 },
+          classmates: { classmate5: 10 }
+        }
+      },
+      {
+        text: '加入体育社',
+        attributeChanges: { grades: -1, mindset: 3, energy: 2, social: 3, luck: 1 },
+        relationshipChanges: {
+          clubs: { club3: 20 },
+          classmates: { classmate4: 10 }
+        }
+      },
+      {
+        text: '暂时不加入任何社团',
+        attributeChanges: { grades: 2, mindset: -1, energy: 1, social: -1, luck: 0 },
+        relationshipChanges: {
+          clubs: { club1: -5, club2: -5, club3: -5, club4: -5, club5: -5 }
+        }
+      }
+    ],
+    season: 'all'
   }
 ];
 
 // 结局数据
-export const endings = [
+export const endings: Ending[] = [
   // 传统结局
   {
     id: 'ending1',
@@ -864,6 +1180,100 @@ export const endings = [
     title: '完美人生',
     description: '你在高中期间全面发展，各方面都表现出色。大学期间你成为了学生会主席，毕业后进入了顶尖企业，凭借出色的综合能力迅速晋升，成为了年轻的行业领袖。',
     condition: { minGrades: 85, minMindset: 85, minEnergy: 85, minSocial: 85, minTalent: 85, minLuck: 85 }
+  },
+  // 新天赋相关结局
+  {
+    id: 'ending17',
+    title: '奥运冠军',
+    description: '你在高中期间展现了出色的体育天赋，大学期间加入了国家队，代表国家参加奥运会并获得了金牌。毕业后你成为了一名传奇运动员，激励了无数年轻人。',
+    condition: { minEnergy: 85, minMindset: 75, minLuck: 70 }
+  },
+  {
+    id: 'ending18',
+    title: '创业新贵',
+    description: '你在高中期间就展现了商业头脑，大学期间开始创业，凭借出色的商业嗅觉和努力，你成功创办了一家知名企业，成为了年轻的创业新贵。',
+    condition: { minSocial: 80, minLuck: 80, minMindset: 70 }
+  },
+  {
+    id: 'ending19',
+    title: '校园爱情',
+    description: '你在高中期间遇到了生命中的另一半，两人共同成长，互相支持。大学毕业后你们结婚了，过上了幸福美满的生活，成为了人人羡慕的一对。',
+    condition: { minSocial: 85, minMindset: 80, minLuck: 75 }
+  },
+  {
+    id: 'ending20',
+    title: '夜行者',
+    description: '你习惯了夜间活动，在夜晚你总是灵感迸发。大学期间你选择了创意行业，成为了一名知名的夜间工作者，你的作品总是在深夜完成，却惊艳了整个世界。',
+    condition: { minMindset: 85, minTalent: 75, minLuck: 70 }
+  },
+  {
+    id: 'ending21',
+    title: '全科医生',
+    description: '你均衡发展，各方面都有不错的基础。大学期间你选择了医学专业，毕业后成为了一名全科医生，能够处理各种病症，受到了患者的广泛信赖。',
+    condition: { minGrades: 70, minMindset: 70, minEnergy: 70, minSocial: 70, minTalent: 70, minLuck: 70 }
+  },
+  // 特殊结局
+  {
+    id: 'ending22',
+    title: '高考状元',
+    description: '你在所有考试中都取得了优异的成绩，最终以全省第一的成绩考入了顶尖大学。在大学期间你继续保持着卓越的学术表现，获得了多项荣誉，成为了学术界的新星。',
+    condition: { minGrades: 95, minMindset: 80, minLuck: 75 }
+  },
+  {
+    id: 'ending23',
+    title: '校园传奇',
+    description: '你的名字在校园里无人不知，无人不晓。你不仅成绩优异，还在各个领域都有所建树，成为了学校的传奇人物。多年后，你的故事还在一届届学生中流传。',
+    condition: { minGrades: 80, minSocial: 90, minTalent: 80, minMindset: 80 }
+  },
+  {
+    id: 'ending24',
+    title: '浪漫青春',
+    description: '你的高中生活充满了浪漫色彩，你经历了许多美好的故事，留下了珍贵的回忆。这些经历让你变得更加成熟和感性，也为你未来的人生增添了许多色彩。',
+    condition: { minSocial: 90, minMindset: 85, minLuck: 80 }
+  },
+  {
+    id: 'ending25',
+    title: '体育明星',
+    description: '你在高中期间体育成绩突出，多次打破校纪录。大学期间你成为了校队的核心队员，带领球队获得了多项荣誉。毕业后你成为了一名职业运动员，在赛场上绽放光芒。',
+    condition: { minEnergy: 90, minSocial: 70, minMindset: 75 }
+  },
+  // 遗憾和特殊结局
+  {
+    id: 'ending26',
+    title: '成长的烦恼',
+    description: '你的高中生活并不完美，你遇到了许多挫折和困难。但正是这些经历让你学会了成长，变得更加坚强。虽然结局不够完美，但你收获了宝贵的人生经验。',
+    condition: { minGrades: 40, minMindset: 50, maxGrades: 60 }
+  },
+  {
+    id: 'ending27',
+    title: '重新出发',
+    description: '高中生活结束了，但你感觉自己还没有准备好。没关系，人生不是一场短跑，而是一场马拉松。你选择了重读一年，给自己更多时间准备，这一次你一定会做得更好！',
+    condition: { minGrades: 30, maxGrades: 50, minMindset: 40 }
+  },
+  // 关系相关结局
+  {
+    id: 'ending28',
+    title: '校园社交王',
+    description: '你在高中期间建立了广泛的社交网络，与同学们关系融洽，是学校的社交明星。大学期间你成为了学生会骨干，毕业后进入了公关行业，凭借出色的人际关系能力迅速崭露头角。',
+    condition: { minSocial: 90, minMindset: 70 }
+  },
+  {
+    id: 'ending29',
+    title: '家庭和谐',
+    description: '你与家人保持着良好的关系，家庭氛围温馨和谐。你的家庭支持是你最大的动力，让你在高中期间能够安心学习，最终取得了理想的成绩，考入了心仪的大学。',
+    condition: { minGrades: 75, minMindset: 80 }
+  },
+  {
+    id: 'ending30',
+    title: '社团领袖',
+    description: '你在高中期间积极参与社团活动，成为了社团的核心成员，甚至担任了社团负责人。你的领导能力和团队精神得到了锻炼，大学期间你继续活跃在社团活动中，成为了校园的风云人物。',
+    condition: { minSocial: 85, minTalent: 70, minMindset: 75 }
+  },
+  {
+    id: 'ending31',
+    title: '师生情深',
+    description: '你与老师们建立了深厚的感情，得到了他们的悉心指导和支持。老师们对你的认可和鼓励成为你前进的动力，最终你以优异的成绩毕业，并在老师们的推荐下获得了宝贵的机会。',
+    condition: { minGrades: 80, minSocial: 75, minMindset: 80 }
   }
 ];
 
@@ -908,6 +1318,32 @@ export const teachers = [
   { id: 'teacher3', name: '张老师', subject: '英语' },
   { id: 'teacher4', name: '刘老师', subject: '体育' },
   { id: 'teacher5', name: '陈老师', subject: '艺术' }
+];
+
+// 同学数据
+export const classmates = [
+  { id: 'classmate1', name: '小明', personality: '活泼开朗' },
+  { id: 'classmate2', name: '小红', personality: '安静内向' },
+  { id: 'classmate3', name: '小李', personality: '学习优秀' },
+  { id: 'classmate4', name: '小张', personality: '运动健将' },
+  { id: 'classmate5', name: '小王', personality: '艺术细胞' }
+];
+
+// 家人数据
+export const familyMembers = [
+  { id: 'family1', name: '爸爸', relationship: '父亲' },
+  { id: 'family2', name: '妈妈', relationship: '母亲' },
+  { id: 'family3', name: '哥哥', relationship: '兄弟' },
+  { id: 'family4', name: '姐姐', relationship: '姐妹' }
+];
+
+// 社团数据
+export const clubs = [
+  { id: 'club1', name: '学习社', description: '专注于学术研究' },
+  { id: 'club2', name: '艺术社', description: '培养艺术才能' },
+  { id: 'club3', name: '体育社', description: '发展体育特长' },
+  { id: 'club4', name: '文学社', description: '提高文学素养' },
+  { id: 'club5', name: '科技社', description: '探索科学技术' }
 ];
 
 // 周末活动数据
@@ -955,6 +1391,52 @@ export const weekendActivities = [
     options: [
       { text: '尽情享受旅程', attributeChanges: { mindset: 4, energy: 2, luck: 2, social: 1 } },
       { text: '惦记着学习', attributeChanges: { grades: 2, mindset: -1, energy: 1 } }
+    ]
+  },
+  // 新增周末活动
+  {
+    id: 'weekend6',
+    title: '电影院',
+    description: '去电影院看最新电影',
+    options: [
+      { text: '看一部励志片', attributeChanges: { mindset: 4, talent: 2, energy: 1 } },
+      { text: '看一部喜剧片', attributeChanges: { mindset: 5, social: 1, energy: 2 } }
+    ]
+  },
+  {
+    id: 'weekend7',
+    title: '博物馆参观',
+    description: '去博物馆参观展览',
+    options: [
+      { text: '认真学习展品知识', attributeChanges: { grades: 4, talent: 2, mindset: 2 } },
+      { text: '随意浏览，放松心情', attributeChanges: { mindset: 3, talent: 1, energy: 1 } }
+    ]
+  },
+  {
+    id: 'weekend8',
+    title: '运动健身',
+    description: '去健身房或户外运动',
+    options: [
+      { text: '高强度训练', attributeChanges: { energy: 3, mindset: 2, grades: -1 } },
+      { text: '轻松运动', attributeChanges: { energy: 2, mindset: 3, social: 1 } }
+    ]
+  },
+  {
+    id: 'weekend9',
+    title: '学做美食',
+    description: '在家学习烹饪新菜品',
+    options: [
+      { text: '认真学习，力求完美', attributeChanges: { talent: 3, mindset: 2, energy: -1 } },
+      { text: '随意尝试，享受过程', attributeChanges: { talent: 1, mindset: 4, energy: 1 } }
+    ]
+  },
+  {
+    id: 'weekend10',
+    title: '摄影采风',
+    description: '去户外摄影采风',
+    options: [
+      { text: '专注创作，追求完美', attributeChanges: { talent: 4, mindset: 2, energy: -2 } },
+      { text: '边走边拍，享受自然', attributeChanges: { talent: 2, mindset: 4, energy: 1, luck: 1 } }
     ]
   }
 ];
@@ -1180,6 +1662,80 @@ export const tasks: Task[] = [
     type: 'long',
     condition: { type: 'attribute', target: 'social', value: 80 },
     reward: { attributes: { social: 5, luck: 3 }, actionPoints: 2 },
+    completed: false
+  },
+  // 新增短期任务
+  {
+    id: 'task9',
+    title: '运动达人',
+    description: '进行5次运动',
+    type: 'short',
+    condition: { type: 'action', target: 'exercise', value: 5 },
+    reward: { attributes: { energy: 4, social: 2 }, actionPoints: 1 },
+    completed: false
+  },
+  {
+    id: 'task10',
+    title: '阅读爱好者',
+    description: '进行4次阅读',
+    type: 'short',
+    condition: { type: 'action', target: 'read', value: 4 },
+    reward: { attributes: { grades: 3, talent: 2 }, actionPoints: 1 },
+    completed: false
+  },
+  {
+    id: 'task11',
+    title: '志愿者',
+    description: '进行3次志愿服务',
+    type: 'short',
+    condition: { type: 'action', target: 'volunteer', value: 3 },
+    reward: { attributes: { mindset: 4, social: 3 }, actionPoints: 1 },
+    completed: false
+  },
+  // 新增长期任务
+  {
+    id: 'task12',
+    title: '才艺大师',
+    description: '才艺达到80分以上',
+    type: 'long',
+    condition: { type: 'attribute', target: 'talent', value: 80 },
+    reward: { attributes: { talent: 5, mindset: 3 }, actionPoints: 2 },
+    completed: false
+  },
+  {
+    id: 'task13',
+    title: '幸运降临',
+    description: '运气达到75分以上',
+    type: 'long',
+    condition: { type: 'attribute', target: 'luck', value: 75 },
+    reward: { attributes: { luck: 5, grades: 2 }, actionPoints: 2 },
+    completed: false
+  },
+  {
+    id: 'task14',
+    title: '长跑健将',
+    description: '度过60天高中生活',
+    type: 'long',
+    condition: { type: 'day', target: 'day', value: 60 },
+    reward: { attributes: { mindset: 4, energy: 4 }, actionPoints: 3 },
+    completed: false
+  },
+  {
+    id: 'task15',
+    title: '马拉松选手',
+    description: '度过90天高中生活',
+    type: 'long',
+    condition: { type: 'day', target: 'day', value: 90 },
+    reward: { attributes: { mindset: 6, luck: 4 }, actionPoints: 4 },
+    completed: false
+  },
+  {
+    id: 'task16',
+    title: '传奇人生',
+    description: '度过120天高中生活',
+    type: 'long',
+    condition: { type: 'day', target: 'day', value: 120 },
+    reward: { attributes: { grades: 5, mindset: 5, energy: 5, social: 5, talent: 5, luck: 5 }, actionPoints: 5 },
     completed: false
   }
 ];
@@ -1456,6 +2012,24 @@ const useGameStore = create<GameState>()(
           initialTeacherRelationship[teacher.id] = 50;
         });
         
+        // 初始化同学关系
+        const initialClassmateRelationship: ClassmateRelationship = {};
+        classmates.forEach(classmate => {
+          initialClassmateRelationship[classmate.id] = 30;
+        });
+        
+        // 初始化家人关系
+        const initialFamilyRelationship: FamilyRelationship = {};
+        familyMembers.forEach(family => {
+          initialFamilyRelationship[family.id] = 70;
+        });
+        
+        // 初始化社团关系
+        const initialClubRelationship: ClubRelationship = {};
+        clubs.forEach(club => {
+          initialClubRelationship[club.id] = 20;
+        });
+        
         set({
           player: {
             id: Date.now().toString(),
@@ -1472,6 +2046,9 @@ const useGameStore = create<GameState>()(
             items: initialItems,
             money: initialMoney, // 初始金钱
             teacherRelationship: initialTeacherRelationship, // 初始化老师好感度
+            classmateRelationship: initialClassmateRelationship, // 初始化同学关系
+            familyRelationship: initialFamilyRelationship, // 初始化家人关系
+            clubRelationship: initialClubRelationship, // 初始化社团关系
             selectedCourses: [] // 初始化课程选择
           },
           gameOver: false,
@@ -1641,10 +2218,50 @@ const useGameStore = create<GameState>()(
           newAttributes[attrKey] = Math.max(0, Math.min(100, newAttributes[attrKey] + value));
         });
         
+        // 应用关系变化
+        const newTeacherRelationship = { ...player.teacherRelationship };
+        const newClassmateRelationship = { ...player.classmateRelationship };
+        const newFamilyRelationship = { ...player.familyRelationship };
+        const newClubRelationship = { ...player.clubRelationship };
+        
+        if (option.relationshipChanges) {
+          // 老师关系变化
+          if (option.relationshipChanges.teachers) {
+            Object.entries(option.relationshipChanges.teachers).forEach(([key, value]) => {
+              newTeacherRelationship[key] = Math.max(0, Math.min(100, (newTeacherRelationship[key] || 50) + value));
+            });
+          }
+          
+          // 同学关系变化
+          if (option.relationshipChanges.classmates) {
+            Object.entries(option.relationshipChanges.classmates).forEach(([key, value]) => {
+              newClassmateRelationship[key] = Math.max(0, Math.min(100, (newClassmateRelationship[key] || 30) + value));
+            });
+          }
+          
+          // 家人关系变化
+          if (option.relationshipChanges.family) {
+            Object.entries(option.relationshipChanges.family).forEach(([key, value]) => {
+              newFamilyRelationship[key] = Math.max(0, Math.min(100, (newFamilyRelationship[key] || 70) + value));
+            });
+          }
+          
+          // 社团关系变化
+          if (option.relationshipChanges.clubs) {
+            Object.entries(option.relationshipChanges.clubs).forEach(([key, value]) => {
+              newClubRelationship[key] = Math.max(0, Math.min(100, (newClubRelationship[key] || 20) + value));
+            });
+          }
+        }
+        
         set({
           player: {
             ...player,
-            attributes: newAttributes
+            attributes: newAttributes,
+            teacherRelationship: newTeacherRelationship,
+            classmateRelationship: newClassmateRelationship,
+            familyRelationship: newFamilyRelationship,
+            clubRelationship: newClubRelationship
           },
           currentEvent: null,
           isEventActive: false
@@ -1684,6 +2301,12 @@ const useGameStore = create<GameState>()(
           if (condition.minSocial && player.attributes.social < condition.minSocial) return false;
           if (condition.minTalent && player.attributes.talent < condition.minTalent) return false;
           if (condition.minLuck && player.attributes.luck < condition.minLuck) return false;
+          if (condition.maxGrades && player.attributes.grades > condition.maxGrades) return false;
+          if (condition.maxMindset && player.attributes.mindset > condition.maxMindset) return false;
+          if (condition.maxEnergy && player.attributes.energy > condition.maxEnergy) return false;
+          if (condition.maxSocial && player.attributes.social > condition.maxSocial) return false;
+          if (condition.maxTalent && player.attributes.talent > condition.maxTalent) return false;
+          if (condition.maxLuck && player.attributes.luck > condition.maxLuck) return false;
           return true;
         });
       },
@@ -1968,10 +2591,50 @@ const useGameStore = create<GameState>()(
           newAttributes[attrKey] = Math.max(0, Math.min(100, newAttributes[attrKey] + value));
         });
         
+        // 应用关系变化
+        const newTeacherRelationship = { ...player.teacherRelationship };
+        const newClassmateRelationship = { ...player.classmateRelationship };
+        const newFamilyRelationship = { ...player.familyRelationship };
+        const newClubRelationship = { ...player.clubRelationship };
+        
+        if (option.relationshipChanges) {
+          // 老师关系变化
+          if (option.relationshipChanges.teachers) {
+            Object.entries(option.relationshipChanges.teachers).forEach(([key, value]) => {
+              newTeacherRelationship[key] = Math.max(0, Math.min(100, (newTeacherRelationship[key] || 50) + value));
+            });
+          }
+          
+          // 同学关系变化
+          if (option.relationshipChanges.classmates) {
+            Object.entries(option.relationshipChanges.classmates).forEach(([key, value]) => {
+              newClassmateRelationship[key] = Math.max(0, Math.min(100, (newClassmateRelationship[key] || 30) + value));
+            });
+          }
+          
+          // 家人关系变化
+          if (option.relationshipChanges.family) {
+            Object.entries(option.relationshipChanges.family).forEach(([key, value]) => {
+              newFamilyRelationship[key] = Math.max(0, Math.min(100, (newFamilyRelationship[key] || 70) + value));
+            });
+          }
+          
+          // 社团关系变化
+          if (option.relationshipChanges.clubs) {
+            Object.entries(option.relationshipChanges.clubs).forEach(([key, value]) => {
+              newClubRelationship[key] = Math.max(0, Math.min(100, (newClubRelationship[key] || 20) + value));
+            });
+          }
+        }
+        
         set({
           player: {
             ...player,
-            attributes: newAttributes
+            attributes: newAttributes,
+            teacherRelationship: newTeacherRelationship,
+            classmateRelationship: newClassmateRelationship,
+            familyRelationship: newFamilyRelationship,
+            clubRelationship: newClubRelationship
           },
           currentWeekendActivity: null,
           isWeekendActivityActive: false
